@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/style.css">
+
+</head>
+
+<body>
+    <div class="jumbotron jumbotron-fluid">
+
+        <div class="container">
+            <h1 class="display-4 text-center">Train Schedule</h1>
+            <p class="lead text-center">Choo choo!</p>
+            <p class="text-center" id="currentTime"></p>
+        </div>
+
+    </div>
+
+    <div class="container">
+
+        <div class="card text-white bg-primary">
+
+            <div class="card-header">
+                Current Train Schedule
+            </div>
+
+            <div class="card-body" id="info">
+                <table style="width:100%" id="headInfo">
+
+                    <tr>
+                        <th>Train Name</th>
+                        <th>Destination</th>
+                        <th>Frequency (min)</th>
+                        <th>Next Arrival</th>
+                        <th>Minutes Away</th>
+                    </tr>
+
+                </table>
+            </div>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> </div>
+        <br>
+        <div class="card">
+
+            <div class="card-header">
+                Add Train Times
+            </div>
+
+            <form class="trainInput">
+
+                <div class="form-group">
+                    <input type="text" class="form-control" id="trainName" placeholder="Train Name">
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" id="destination" placeholder="Train Destination">
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" id="trainTime" placeholder="First Train Time (HH:mm - Military time)">
+                </div>
+
+                <div class="form-group">
+                    <input type="number" class="form-control" id="frequency" placeholder="Frequency (minutes)">
+                </div>
+
+                <button type="submit" id="Esubmit" class="btn btn-primary">Submit</button>
+
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.21.0/moment.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyDinYhSmjWgrDa2eXpihv8c_YaFNNpEfms",
+            authDomain: "train-schedule-702b6.firebaseapp.com",
+            databaseURL: "https://train-schedule-702b6.firebaseio.com",
+            projectId: "train-schedule-702b6",
+            storageBucket: "",
+            messagingSenderId: "15127777424"
+        };
+        firebase.initializeApp(config);
+        var database = firebase.database();
+        // Assumptions
+        var trainName = "";
+        var destination = "";
+        var trainTime = 0;
+        var frequency = "";
+
+
+        $("#Esubmit").on("click", function (event) {
+            trainName = $("#trainName").val().trim();
+            destination = $("#destination").val().trim();
+            trainTime = $("#trainTime").val().trim();
+            frequency = $("#frequency").val().trim();
+            // Prevent form from submitting
+            event.preventDefault();
+            // Get the input values
+            //make values in database
+            database.ref().push({
+
+                trainName: trainName,
+                destination: destination,
+                trainTime: trainTime,
+                frequency: frequency,
+
+            });
+
+            $("#trainName").val('');
+            $("#destination").val('');
+            $("#trainTime").val('');
+            $("#frequency").val('');
+
+        });
+
+        database.ref().on("child_added", function (childSnapshot) {
+
+            // Log everything that's coming out of snapshot
+            console.log(childSnapshot.val().trainName)
+
+            var currentTime = moment().format('LTS');
+            console.log("Current Time: " + currentTime);
+
+            var trainTimeall = childSnapshot.val().trainTime;
+            var trainTimeFormat = (moment(trainTimeall).format("hh:mm a"))
+            console.log("Start Time: " + trainTimeFormat);
+           
+
+            $("#currentTime").append(currentTime);
+
+            $("#headInfo").append(`
+        <tr>
+                <td>${childSnapshot.val().trainName}</td>
+                <td>${childSnapshot.val().destination}</td> 
+                <td>${childSnapshot.val().trainTime}</td> 
+                <td>${childSnapshot.val().frequency}</td> 
+        </tr>
+        `);
+            // Change the HTML to reflect
+
+
+            // Handle the errors
+        }, function (errorObject) {
+            console.log("Errors handled: " + errorObject.code);
+        });
+
+    </script>
+</body>
+
+</html>
