@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Amatic+SC" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -14,73 +14,77 @@
 </head>
 
 <body>
-    <div class="jumbotron jumbotron-fluid">
+    <div class="topImage d-flex align-items-center">
 
-        <div class="container">
-            <h1 class="display-4 text-center">Train Schedule</h1>
-            <p class="lead text-center">Choo choo!</p>
-            <p class="text-center" id="currentTime"></p>
+        <div class="container text-center text-white">
+            <h1 class="display-1">Train Schedule</h1>
+            <p id="currentTime"></p>
         </div>
 
     </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 col-md-4">
+                <div class="card">
 
-    <div class="container">
+                    <div class="card-header text-center">
+                        Add Train Times
+                    </div>
 
-        <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <form>
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="trainName" placeholder="Train Name">
+                            </div>
 
-            <div class="card-header">
-                Current Train Schedule
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="destination" placeholder="Train Destination">
+                            </div>
+
+                            <div class="form-group">
+                                <input type="number" class="form-control" id="frequency" placeholder="Frequency (minutes)">
+                            </div>
+
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="trainTime" placeholder="First Train Time (HH:mm - Military time)">
+                            </div>
+
+                            <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <br>
+
+            <div class="col-sm-12 col-md-8">
+                <div class="card">
+
+                    <div class="card-header text-center">
+                        <h5>Current Train Schedule</h5>
+                    </div>
+
+                    <div class="card-body" id="info">
+                        <table style="width:100%" id="headInfo">
+
+                            <tr>
+                                <th>Train Name</th>
+                                <th>Destination</th>
+                                <th>Frequency (min)</th>
+                                <th>Next Arrival</th>
+                                <th>Minutes Away</th>
+                            </tr>
+
+                        </table>
+                    </div>
+                </div>
             </div>
 
-            <div class="card-body" id="info">
-                <table style="width:100%" id="headInfo">
-
-                    <tr>
-                        <th>Train Name</th>
-                        <th>Destination</th>
-                        <th>Frequency (min)</th>
-                        <th>Next Arrival</th>
-                        <th>Minutes Away</th>
-                    </tr>
-
-                </table>
-            </div>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> </div>
-        <br>
-        <div class="card">
-
-            <div class="card-header">
-                Add Train Times
-            </div>
-
-            <form class="trainInput">
-
-                <div class="form-group">
-                    <input type="text" class="form-control" id="trainName" placeholder="Train Name">
-                </div>
-
-                <div class="form-group">
-                    <input type="text" class="form-control" id="destination" placeholder="Train Destination">
-                </div>
-
-                <div class="form-group">
-                    <input type="text" class="form-control" id="trainTime" placeholder="First Train Time (HH:mm - Military time)">
-                </div>
-
-                <div class="form-group">
-                    <input type="number" class="form-control" id="frequency" placeholder="Frequency (minutes)">
-                </div>
-
-                <button type="submit" id="Esubmit" class="btn btn-primary">Submit</button>
-
-            </form>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.21.0/moment.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
     <script>
         // Initialize Firebase
@@ -99,9 +103,24 @@
         var destination = "";
         var trainTime = 0;
         var frequency = "";
+        var currentTime = moment().format('h:mm:ss a');
+
+        var datetime = null,
+            date = null;
+
+        var update = function () {
+            date = moment(new Date())
+            datetime.html(date.format('dddd, MMMM Do YYYY, h:mm:ss a'));
+        };
+
+        $(document).ready(function () {
+            datetime = $('#currentTime')
+            update();
+            setInterval(update, 1000);
+        });
 
 
-        $("#Esubmit").on("click", function (event) {
+        $("#submit").on("click", function (event) {
             trainName = $("#trainName").val().trim();
             destination = $("#destination").val().trim();
             trainTime = $("#trainTime").val().trim();
@@ -128,25 +147,41 @@
 
         database.ref().on("child_added", function (childSnapshot) {
 
-            // Log everything that's coming out of snapshot
-            console.log(childSnapshot.val().trainName)
+            // Log Snapshot
 
-            var currentTime = moment().format('LTS');
-            console.log("Current Time: " + currentTime);
+            var frequency = (childSnapshot.val().frequency);
+            var timeOne = (childSnapshot.val().trainTime);
 
-            var trainTimeall = childSnapshot.val().trainTime;
-            var trainTimeFormat = (moment(trainTimeall).format("hh:mm a"))
-            console.log("Start Time: " + trainTimeFormat);
-           
+            var timeOneConverted = moment(timeOne, "HH:mm").subtract(1, "years");
+            console.log(timeOneConverted);
 
-            $("#currentTime").append(currentTime);
+            var currentTime = moment();
+            console.log("Current time: ") + moment(currentTime).format("hh:mm");
+
+
+            var diffTime = moment().diff(moment(timeOneConverted), "minutes");
+            console.log("Difference in time: " + diffTime);
+
+
+            var timeLeft = diffTime % frequency;
+            console.log(timeLeft);
+
+
+            var minutesRemaining = frequency - timeLeft;
+            console.log("Minutes until train: " + minutesRemaining);
+
+
+            var nextTrain = moment().add(minutesRemaining, "minutes");
+            console.log("Arrival time: " + moment(nextTrain).format("hh:mm"));
+
 
             $("#headInfo").append(`
         <tr>
                 <td>${childSnapshot.val().trainName}</td>
                 <td>${childSnapshot.val().destination}</td> 
-                <td>${childSnapshot.val().trainTime}</td> 
                 <td>${childSnapshot.val().frequency}</td> 
+                <td>${moment(nextTrain).format('LT')}</td>
+                <td>${minutesRemaining}</td> 
         </tr>
         `);
             // Change the HTML to reflect

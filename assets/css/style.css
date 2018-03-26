@@ -1,5 +1,23 @@
-.trainInput
-{
-    width: 100%;
-    padding: 20px
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.topImage {
+    height: 50%;
+    background-image: url('../images/bg.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-family: 'Amatic SC', cursive;
+    color: rgba(253, 250, 72, 0.9);
+    text-shadow: 1px 1px white;
+}
+
+.card {
+    font-family: 'PT Sans Narrow', sans-serif;
 }
